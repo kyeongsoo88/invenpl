@@ -1,12 +1,322 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>invenpl</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STO US E-Commerce 매출 분석 — 시즌 믹스 관점 (2026.05) · v1.3</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --ink:#0F172A; --ink2:#475569; --ink3:#94A3B8;
+  --line:#E5E7EB; --line2:#EEF1F4;
+  --blue:#2563EB; --blue-d:#1D4ED8; --blue-soft:#EFF4FE; --blue-bd:#DBE6FB;
+  --green:#16A34A; --green-soft:#F0FBF3; --green-bd:#CFEBD8;
+  --red:#DC2626; --red-soft:#FEF2F2; --red-bd:#F6D5D5;
+  --amber:#D97706; --amber-soft:#FFFBEB; --amber-bd:#F1E2BE;
+  --navy:#0F172A; --navy2:#1E293B;
+  --radius:14px; --radius-sm:10px;
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 1px 2px -1px rgba(15,23,42,.06);
+  --shadow-md:0 4px 16px rgba(15,23,42,.08);
+  --sans:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;word-break:keep-all}
+
+.wrap{max-width:1120px;margin:0 auto;padding:30px 28px 70px}
+
+/* SECTION */
+.section{margin-top:30px}
+.section:first-of-type{margin-top:0}
+.sec-head{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.sec-head .n{width:30px;height:30px;border-radius:9px;background:var(--blue);color:#fff;font-weight:800;font-size:14px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,.3)}
+.sec-head .n.navy{background:var(--navy);box-shadow:0 2px 8px rgba(15,23,42,.3)}
+.sec-head h2{font-size:18px;font-weight:800;letter-spacing:-.02em;line-height:1.3}
+.sec-head .en{font-size:11px;font-weight:700;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-left:auto;white-space:nowrap}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.card h3{font-size:13.5px;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:9px;letter-spacing:-.01em}
+.yr{font-size:10.5px;font-weight:800;letter-spacing:.04em;padding:3px 9px;border-radius:100px}
+.yr.now{background:var(--blue);color:#fff}
+.yr.ly{background:#EEF1F4;color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-37{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;align-items:stretch}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:420px}
+thead th{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.03em;
+  text-align:right;padding:9px 11px;background:#F8FAFC;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th:first-child{text-align:left;border-radius:8px 0 0 0}
+thead th:last-child{border-radius:0 8px 0 0}
+tbody td{font-size:13px;text-align:right;padding:8px 11px;border-bottom:1px solid var(--line2);
+  font-variant-numeric:tabular-nums;color:var(--ink2);white-space:nowrap}
+tbody td:first-child{text-align:left;font-weight:700;color:var(--ink)}
+tbody tr:last-child td{border-bottom:none}
+tr.hl td{background:var(--blue-soft)}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
+tr.total td{background:#F8FAFC;font-weight:800;color:var(--ink);border-top:2px solid var(--line)}
+.pos{color:var(--green);font-weight:700}
+.neg{color:var(--red);font-weight:700}
+.em{color:var(--blue-d);font-weight:800}
+
+/* SUMMARY TABLE (한눈에 보기) */
+table.summary{min-width:560px}
+table.summary thead th{background:var(--navy);color:#fff;font-size:11.5px;border-bottom:none}
+table.summary thead th:first-child{border-radius:8px 0 0 0}
+table.summary thead th:last-child{border-radius:0 8px 0 0;color:#93B4FF}
+table.summary tbody td{font-size:13px;text-align:left;white-space:normal;vertical-align:top;padding:11px 13px;line-height:1.5}
+table.summary tbody td:first-child{width:120px;font-weight:800}
+table.summary tbody td.obs{color:var(--ink2);width:230px}
+table.summary tbody td.ans{color:var(--ink);font-weight:500}
+table.summary tbody td.ans b{color:var(--blue-d);font-weight:800}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:100px;white-space:nowrap}
+.tag.g{background:var(--green-soft);color:var(--green);border:1px solid var(--green-bd)}
+.tag.r{background:var(--red-soft);color:var(--red);border:1px solid var(--red-bd)}
+.tag.b{background:var(--blue-soft);color:var(--blue-d);border:1px solid var(--blue-bd)}
+
+/* KEYLINE — 한 줄 핵심 */
+.keyline{display:flex;align-items:center;gap:11px;background:var(--blue-soft);border:1px solid var(--blue-bd);
+  border-left:4px solid var(--blue);border-radius:var(--radius-sm);padding:11px 16px;margin-top:13px;font-size:13px;color:var(--ink);font-weight:500}
+.keyline .lab{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--blue);text-transform:uppercase;flex-shrink:0}
+.keyline b{color:var(--blue-d);font-weight:800}
+.keyline .num{color:var(--blue-d);font-weight:800}
+
+/* KPI CHIPS */
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;box-shadow:var(--shadow)}
+.chip .l{font-size:11.5px;font-weight:700;color:var(--ink2);margin-bottom:9px;letter-spacing:-.01em}
+.chip .v{font-size:27px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.chip .d{font-size:12px;margin-top:8px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.chip .d.up{color:var(--green)} .chip .d.down{color:var(--red)}
+.chip .d .ar{font-size:10px}
+
+/* FOOTER */
+.foot{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:8px;font-size:11.5px;color:var(--ink3)}
+.foot .b{font-weight:700;color:var(--ink2)}
+.foot .conf{color:var(--red);font-weight:700;letter-spacing:.06em}
+
+@media print{body{background:#fff}.wrap{max-width:none;padding:16px}
+  .section,.card,.keyline{break-inside:avoid}}
+@media(max-width:880px){
+  .grid2,.grid-37{grid-template-columns:1fr}
+  .chips{grid-template-columns:1fr 1fr}
+}
+
+/* CHART (그래프 시트) */
+.card h3 .src{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--ink3)}
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:2px 0 8px}
+.chart-legend .lg{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--ink2)}
+.chart-legend .lg i{width:11px;height:11px;border-radius:3px;display:inline-block;flex-shrink:0}
+.chart-svg{overflow-x:auto}
+.chart-svg svg{min-width:680px;display:block}
+</style>
 </head>
 <body>
-  <h1>준비 중입니다</h1>
-  <p>HTML 작업이 완료되면 이 페이지가 업데이트됩니다.</p>
+<div class="wrap">
+
+  <!-- ===== 0. 한눈에 보기 ===== -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="n navy">◆</span>
+      <h2>한눈에 보기 — 표면 지표 vs 시즌 믹스 관점</h2>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="tbl-wrap"><table class="summary">
+        <thead><tr><th>항목</th><th>대시보드 표면 관측</th><th></th></tr></thead>
+        <tbody>
+          <tr>
+            <td>US EC 매출</td>
+            <td class="obs">
+              <div>MSRP Sales 증가</div>
+              <div style="margin-top:7px">Net Sales 증가</div>
+            </td>
+            <td class="ans">
+              <div><span class="tag b">재고 소진</span> $2,170K → <b>$3,288K</b> (+51.6%)</div>
+              <div style="margin-top:7px"><span class="tag g">성장 유지</span> $1,489K → <b>$1,580K</b> (+6.1%)</div>
+            </td>
+          </tr>
+          <tr>
+            <td>당시즌 매출</td>
+            <td class="obs">26SS &lt; 전년 25SS (61.3% 수준)</td>
+            <td class="ans"><span class="tag b">정합</span> 재고비중 <b>71.8% → 39.3%</b> · 스타일·SKU <b>약 60%</b></td>
+          </tr>
+          <tr>
+            <td>할인율</td>
+            <td class="obs">31.4% → 52.0% (+20.6%p)</td>
+            <td class="ans"><span class="tag b">믹스 영향</span> 시즌별 할인율(+3~8%p)보다 <b>고할인 과시즌 비중 65.7%</b> 확대가 주동인</td>
+          </tr>
+          <tr>
+            <td>SEM 광고비</td>
+            <td class="obs">Net Sales 대비 18.3% → 21.5% (↑)</td>
+            <td class="ans"><span class="tag g">효율 개선</span> MSRP Sales 대비 <b>12.5% → 10.3% 하락</b> → 손익영향 제한·재고소진 기여</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ===== 1. SEASON MIX ===== -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="n">1</span>
+      <h2>가용재고 믹스</h2>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>월초재고 대비 MSRP 매출액 비중 <span class="yr now">26년 5월</span></h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>시즌</th><th>월초재고</th><th>비중</th><th>매출액</th><th>비중</th><th>재고대비</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>26SS · 당시즌</td><td>12,675</td><td>39.3%</td><td>896</td><td>27.2%</td><td>7.1%</td></tr>
+            <tr><td>25FW</td><td>13,177</td><td>40.9%</td><td>1,256</td><td>38.2%</td><td>9.5%</td></tr>
+            <tr><td>Aged</td><td>5,754</td><td>17.9%</td><td>1,086</td><td>33.0%</td><td>18.9%</td></tr>
+            <tr><td>Core</td><td>635</td><td>2.0%</td><td>51</td><td>1.6%</td><td>8.1%</td></tr>
+            <tr class="total"><td>합계</td><td>32,240</td><td>100%</td><td>3,288</td><td>100%</td><td>10.2%</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <h3>월초재고 대비 MSRP 매출액 비중 <span class="yr ly">25년 5월 (LY)</span></h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>시즌</th><th>월초재고</th><th>비중</th><th>매출액</th><th>비중</th><th>재고대비</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>25SS · 당시즌</td><td>24,295</td><td>71.8%</td><td>1,461</td><td>67.3%</td><td>6.0%</td></tr>
+            <tr><td>24FW</td><td>6,122</td><td>18.1%</td><td>498</td><td>22.9%</td><td>8.1%</td></tr>
+            <tr><td>Aged</td><td>1,834</td><td>5.4%</td><td>164</td><td>7.6%</td><td>8.9%</td></tr>
+            <tr><td>Core</td><td>1,585</td><td>4.7%</td><td>48</td><td>2.2%</td><td>3.0%</td></tr>
+            <tr class="total"><td>합계</td><td>33,836</td><td>100%</td><td>2,170</td><td>100%</td><td>6.4%</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="grid-37" style="margin-top:14px">
+      <div class="keyline" style="margin-top:0">
+        <span class="lab">핵심</span>
+        <span>
+          <div>1. 당시즌(26SS) 재고비중 <span class="num">39.3%</span>로 전년 25SS <span class="num">71.8%</span>의 <b>절반 수준</b></div>
+          <div style="margin-top:5px">2. 26SS의 스타일수 및 SKU 숫자가 25SS의 <span class="num">60%</span> 수준</div>
+          <div style="margin-top:3px;padding-left:13px;color:var(--ink2)">└ 당시즌 제품 내 소비자가 선택할 수 있는 <b>선택지가 감소</b></div>
+        </span>
+      </div>
+      <div class="card">
+        <h3>스타일수 · SKU수 (참고)</h3>
+        <div class="tbl-wrap"><table style="min-width:0">
+          <thead><tr><th>시즌</th><th>스타일수</th><th>SKU수</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>26SS</td><td>288</td><td>1,782</td></tr>
+            <tr><td>25SS</td><td>463</td><td>2,918</td></tr>
+            <tr class="total"><td>26SS / 25SS</td><td class="em">62.2%</td><td class="em">61.1%</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>STO 월별 재고현황</h3>
+      <div class="chart-legend"><span class="lg"><i style="background:#93C5FD"></i>26FW</span><span class="lg"><i style="background:#2563EB"></i>26SS</span><span class="lg"><i style="background:#14B8A6"></i>25FW</span><span class="lg"><i style="background:#F59E0B"></i>25SS</span><span class="lg"><i style="background:#A78BFA"></i>24FW</span><span class="lg"><i style="background:#94A3B8"></i>Aged</span><span class="lg"><i style="background:#16A34A"></i>Core</span></div>
+      <div class="chart-svg"><svg viewBox="0 0 1040 360" width="100%" preserveAspectRatio="xMidYMid meet" font-family="Pretendard, sans-serif"><rect x="742.2" y="20" width="281.8" height="294.0" fill="#F1F5F9" opacity="0.6"/><text x="748.2" y="33" font-size="9.5" font-weight="700" fill="#94A3B8">소진 전망</text><line x1="58" y1="314.0" x2="1024" y2="314.0" stroke="#E5E7EB" stroke-width="1"/><text x="50" y="317.5" font-size="10" fill="#94A3B8" text-anchor="end">$0M</text><line x1="58" y1="252.8" x2="1024" y2="252.8" stroke="#E5E7EB" stroke-width="1"/><text x="50" y="256.2" font-size="10" fill="#94A3B8" text-anchor="end">$10M</text><line x1="58" y1="191.5" x2="1024" y2="191.5" stroke="#E5E7EB" stroke-width="1"/><text x="50" y="195.0" font-size="10" fill="#94A3B8" text-anchor="end">$20M</text><line x1="58" y1="130.2" x2="1024" y2="130.2" stroke="#E5E7EB" stroke-width="1"/><text x="50" y="133.8" font-size="10" fill="#94A3B8" text-anchor="end">$30M</text><line x1="58" y1="69.0" x2="1024" y2="69.0" stroke="#E5E7EB" stroke-width="1"/><text x="50" y="72.5" font-size="10" fill="#94A3B8" text-anchor="end">$40M</text><rect x="65.2" y="266.7" width="25.8" height="47.3" fill="#F59E0B"/><text x="78.1" y="293.0" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">38%</text><rect x="65.2" y="208.5" width="25.8" height="58.2" fill="#A78BFA"/><text x="78.1" y="240.2" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">47%</text><rect x="65.2" y="196.6" width="25.8" height="11.9" fill="#94A3B8"/><rect x="65.2" y="191.1" width="25.8" height="5.5" fill="#16A34A"/><text x="78.1" y="187.1" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">20,060</text><text x="78.1" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 78.1 329)">25.1</text><rect x="105.5" y="182.4" width="25.8" height="131.6" fill="#F59E0B"/><text x="118.4" y="250.8" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">67%</text><rect x="105.5" y="136.3" width="25.8" height="46.1" fill="#A78BFA"/><text x="118.4" y="161.9" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">24%</text><rect x="105.5" y="126.7" width="25.8" height="9.6" fill="#94A3B8"/><rect x="105.5" y="118.1" width="25.8" height="8.6" fill="#16A34A"/><text x="118.4" y="114.1" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">31,981</text><text x="118.4" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 118.4 329)">25.2</text><rect x="145.7" y="313.2" width="25.8" height="0.8" fill="#14B8A6"/><rect x="145.7" y="175.3" width="25.8" height="138.0" fill="#F59E0B"/><text x="158.6" y="246.8" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">69%</text><rect x="145.7" y="132.8" width="25.8" height="42.4" fill="#A78BFA"/><text x="158.6" y="156.6" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">21%</text><rect x="145.7" y="123.5" width="25.8" height="9.3" fill="#94A3B8"/><rect x="145.7" y="114.9" width="25.8" height="8.6" fill="#16A34A"/><text x="158.6" y="110.9" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">32,507</text><text x="158.6" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 158.6 329)">25.3</text><rect x="186.0" y="313.2" width="25.8" height="0.8" fill="#14B8A6"/><rect x="186.0" y="165.2" width="25.8" height="148.0" fill="#F59E0B"/><text x="198.9" y="241.8" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">71%</text><rect x="186.0" y="127.7" width="25.8" height="37.5" fill="#A78BFA"/><text x="198.9" y="149.0" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">18%</text><rect x="186.0" y="116.5" width="25.8" height="11.2" fill="#94A3B8"/><rect x="186.0" y="106.8" width="25.8" height="9.7" fill="#16A34A"/><text x="198.9" y="102.8" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">33,836</text><text x="198.9" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 198.9 329)">25.4</text><rect x="226.2" y="313.1" width="25.8" height="0.9" fill="#14B8A6"/><rect x="226.2" y="175.7" width="25.8" height="137.4" fill="#F59E0B"/><text x="239.1" y="247.0" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">71%</text><rect x="226.2" y="141.3" width="25.8" height="34.3" fill="#A78BFA"/><text x="239.1" y="161.1" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">18%</text><rect x="226.2" y="131.2" width="25.8" height="10.1" fill="#94A3B8"/><rect x="226.2" y="121.7" width="25.8" height="9.5" fill="#16A34A"/><text x="239.1" y="117.7" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">31,389</text><text x="239.1" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 239.1 329)">25.5</text><rect x="266.5" y="311.3" width="25.8" height="2.7" fill="#14B8A6"/><rect x="266.5" y="186.4" width="25.8" height="124.9" fill="#F59E0B"/><text x="279.4" y="251.4" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">70%</text><rect x="266.5" y="154.5" width="25.8" height="31.9" fill="#A78BFA"/><text x="279.4" y="173.1" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">18%</text><rect x="266.5" y="145.3" width="25.8" height="9.2" fill="#94A3B8"/><rect x="266.5" y="136.1" width="25.8" height="9.2" fill="#16A34A"/><text x="279.4" y="132.1" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">29,037</text><text x="279.4" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 279.4 329)">25.6</text><rect x="306.7" y="265.4" width="25.8" height="48.6" fill="#14B8A6"/><text x="319.6" y="292.3" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">23%</text><rect x="306.7" y="149.9" width="25.8" height="115.6" fill="#F59E0B"/><text x="319.6" y="210.2" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">55%</text><rect x="306.7" y="124.1" width="25.8" height="25.8" fill="#A78BFA"/><text x="319.6" y="139.6" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">12%</text><rect x="306.7" y="116.1" width="25.8" height="8.0" fill="#94A3B8"/><rect x="306.7" y="105.8" width="25.8" height="10.4" fill="#16A34A"/><text x="319.6" y="101.8" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">33,999</text><text x="319.6" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 319.6 329)">25.7</text><rect x="347.0" y="313.8" width="25.8" height="0.2" fill="#2563EB"/><rect x="347.0" y="219.3" width="25.8" height="94.5" fill="#14B8A6"/><text x="359.9" y="269.2" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">39%</text><rect x="347.0" y="114.5" width="25.8" height="104.8" fill="#F59E0B"/><text x="359.9" y="169.5" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">44%</text><rect x="347.0" y="94.2" width="25.8" height="20.3" fill="#A78BFA"/><text x="359.9" y="107.0" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">8%</text><rect x="347.0" y="87.2" width="25.8" height="7.0" fill="#94A3B8"/><rect x="347.0" y="74.5" width="25.8" height="12.7" fill="#16A34A"/><text x="359.9" y="70.5" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">39,104</text><text x="359.9" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 359.9 329)">25.8</text><rect x="387.2" y="313.9" width="25.8" height="0.1" fill="#2563EB"/><rect x="387.2" y="188.8" width="25.8" height="125.1" fill="#14B8A6"/><text x="400.1" y="254.0" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">48%</text><rect x="387.2" y="94.1" width="25.8" height="94.7" fill="#F59E0B"/><text x="400.1" y="144.1" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">36%</text><rect x="387.2" y="76.3" width="25.8" height="17.8" fill="#A78BFA"/><text x="400.1" y="87.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">7%</text><rect x="387.2" y="70.1" width="25.8" height="6.2" fill="#94A3B8"/><rect x="387.2" y="52.5" width="25.8" height="17.6" fill="#16A34A"/><text x="400.1" y="63.9" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">7%</text><text x="400.1" y="48.5" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">42,702</text><text x="400.1" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 400.1 329)">25.9</text><rect x="427.5" y="313.9" width="25.8" height="0.1" fill="#2563EB"/><rect x="427.5" y="193.9" width="25.8" height="120.1" fill="#14B8A6"/><text x="440.4" y="256.5" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">51%</text><rect x="427.5" y="113.0" width="25.8" height="80.8" fill="#F59E0B"/><text x="440.4" y="156.1" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">34%</text><rect x="427.5" y="98.3" width="25.8" height="14.7" fill="#A78BFA"/><text x="440.4" y="108.3" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">6%</text><rect x="427.5" y="93.1" width="25.8" height="5.2" fill="#94A3B8"/><rect x="427.5" y="76.5" width="25.8" height="16.6" fill="#16A34A"/><text x="440.4" y="87.4" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">7%</text><text x="440.4" y="72.5" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">38,777</text><text x="440.4" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 440.4 329)">25.10</text><rect x="467.7" y="314.0" width="25.8" height="0.0" fill="#2563EB"/><rect x="467.7" y="209.2" width="25.8" height="104.8" fill="#14B8A6"/><text x="480.6" y="264.2" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">55%</text><rect x="467.7" y="150.2" width="25.8" height="59.0" fill="#F59E0B"/><text x="480.6" y="182.3" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">31%</text><rect x="467.7" y="139.3" width="25.8" height="10.9" fill="#A78BFA"/><rect x="467.7" y="136.6" width="25.8" height="2.7" fill="#94A3B8"/><rect x="467.7" y="123.7" width="25.8" height="12.9" fill="#16A34A"/><text x="480.6" y="119.7" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">31,076</text><text x="480.6" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 480.6 329)">25.11</text><rect x="508.0" y="314.0" width="25.8" height="0.0" fill="#2563EB"/><rect x="508.0" y="229.3" width="25.8" height="84.7" fill="#14B8A6"/><text x="520.9" y="274.2" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">60%</text><rect x="508.0" y="187.8" width="25.8" height="41.4" fill="#F59E0B"/><text x="520.9" y="211.1" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">29%</text><rect x="508.0" y="180.9" width="25.8" height="7.0" fill="#A78BFA"/><rect x="508.0" y="178.6" width="25.8" height="2.2" fill="#94A3B8"/><rect x="508.0" y="172.3" width="25.8" height="6.3" fill="#16A34A"/><text x="520.9" y="168.3" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">23,133</text><text x="520.9" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 520.9 329)">25.12</text><rect x="548.2" y="307.3" width="25.8" height="6.7" fill="#2563EB"/><rect x="548.2" y="228.5" width="25.8" height="78.8" fill="#14B8A6"/><text x="561.1" y="270.5" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">60%</text><rect x="548.2" y="194.5" width="25.8" height="34.0" fill="#F59E0B"/><text x="561.1" y="214.1" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">26%</text><rect x="548.2" y="187.7" width="25.8" height="6.7" fill="#A78BFA"/><rect x="548.2" y="185.9" width="25.8" height="1.9" fill="#94A3B8"/><rect x="548.2" y="182.3" width="25.8" height="3.6" fill="#16A34A"/><text x="561.1" y="178.3" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">21,505</text><text x="561.1" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 561.1 329)">26.1</text><rect x="588.5" y="255.0" width="25.8" height="59.0" fill="#2563EB"/><text x="601.4" y="287.1" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">30%</text><rect x="588.5" y="162.5" width="25.8" height="92.6" fill="#14B8A6"/><text x="601.4" y="211.4" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">47%</text><rect x="588.5" y="130.7" width="25.8" height="31.8" fill="#F59E0B"/><text x="601.4" y="149.2" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">16%</text><rect x="588.5" y="124.6" width="25.8" height="6.1" fill="#A78BFA"/><rect x="588.5" y="122.9" width="25.8" height="1.7" fill="#94A3B8"/><rect x="588.5" y="119.0" width="25.8" height="3.9" fill="#16A34A"/><text x="601.4" y="115.0" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">31,839</text><text x="601.4" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 601.4 329)">26.2</text><rect x="628.7" y="234.1" width="25.8" height="79.9" fill="#2563EB"/><text x="641.6" y="276.7" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">38%</text><rect x="628.7" y="148.2" width="25.8" height="85.9" fill="#14B8A6"/><text x="641.6" y="193.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">41%</text><rect x="628.7" y="117.2" width="25.8" height="31.0" fill="#F59E0B"/><text x="641.6" y="135.3" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">15%</text><rect x="628.7" y="111.8" width="25.8" height="5.4" fill="#A78BFA"/><rect x="628.7" y="110.2" width="25.8" height="1.6" fill="#94A3B8"/><rect x="628.7" y="106.5" width="25.8" height="3.7" fill="#16A34A"/><text x="641.6" y="102.5" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">33,880</text><text x="641.6" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 641.6 329)">26.3</text><rect x="669.0" y="236.4" width="25.8" height="77.6" fill="#2563EB"/><text x="681.9" y="277.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">39%</text><rect x="669.0" y="155.7" width="25.8" height="80.7" fill="#14B8A6"/><text x="681.9" y="198.6" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">41%</text><rect x="669.0" y="126.7" width="25.8" height="29.0" fill="#F59E0B"/><text x="681.9" y="143.8" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">15%</text><rect x="669.0" y="121.8" width="25.8" height="4.8" fill="#A78BFA"/><rect x="669.0" y="120.4" width="25.8" height="1.4" fill="#94A3B8"/><rect x="669.0" y="116.5" width="25.8" height="3.9" fill="#16A34A"/><text x="681.9" y="112.5" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">32,240</text><text x="681.9" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 681.9 329)">26.4</text><rect x="709.2" y="242.3" width="25.8" height="71.7" fill="#2563EB"/><text x="722.1" y="280.7" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">39%</text><rect x="709.2" y="165.0" width="25.8" height="77.3" fill="#14B8A6"/><text x="722.1" y="206.3" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">42%</text><rect x="709.2" y="140.6" width="25.8" height="24.4" fill="#F59E0B"/><text x="722.1" y="155.4" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">13%</text><rect x="709.2" y="136.6" width="25.8" height="4.0" fill="#A78BFA"/><rect x="709.2" y="136.4" width="25.8" height="0.3" fill="#94A3B8"/><rect x="709.2" y="131.4" width="25.8" height="5.0" fill="#16A34A"/><text x="722.1" y="127.4" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">29,813</text><text x="722.1" y="329" font-size="8.5" font-weight="800" fill="#1D4ED8" text-anchor="middle" transform="rotate(-42 722.1 329)">26.5</text><rect x="749.5" y="247.3" width="25.8" height="66.7" fill="#2563EB"/><text x="762.4" y="283.3" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">39%</text><rect x="749.5" y="174.6" width="25.8" height="72.7" fill="#14B8A6"/><text x="762.4" y="213.6" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">43%</text><rect x="749.5" y="153.1" width="25.8" height="21.5" fill="#F59E0B"/><text x="762.4" y="166.4" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">13%</text><rect x="749.5" y="149.7" width="25.8" height="3.4" fill="#A78BFA"/><rect x="749.5" y="149.5" width="25.8" height="0.2" fill="#94A3B8"/><rect x="749.5" y="144.7" width="25.8" height="4.8" fill="#16A34A"/><text x="762.4" y="140.7" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">27,642</text><text x="762.4" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 762.4 329)">26.6</text><rect x="789.7" y="300.7" width="25.8" height="13.3" fill="#93C5FD"/><text x="802.6" y="310.0" font-size="7" font-weight="700" fill="#0F172A" text-anchor="middle">8%</text><rect x="789.7" y="240.4" width="25.8" height="60.4" fill="#2563EB"/><text x="802.6" y="273.2" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">36%</text><rect x="789.7" y="175.2" width="25.8" height="65.2" fill="#14B8A6"/><text x="802.6" y="210.4" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">39%</text><rect x="789.7" y="156.6" width="25.8" height="18.6" fill="#F59E0B"/><text x="802.6" y="168.5" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">11%</text><rect x="789.7" y="153.8" width="25.8" height="2.9" fill="#A78BFA"/><rect x="789.7" y="153.6" width="25.8" height="0.2" fill="#94A3B8"/><rect x="789.7" y="147.2" width="25.8" height="6.4" fill="#16A34A"/><text x="802.6" y="143.2" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">27,233</text><text x="802.6" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 802.6 329)">26.7</text><rect x="830.0" y="281.0" width="25.8" height="33.0" fill="#93C5FD"/><text x="842.9" y="300.1" font-size="7" font-weight="700" fill="#0F172A" text-anchor="middle">19%</text><rect x="830.0" y="225.7" width="25.8" height="55.3" fill="#2563EB"/><text x="842.9" y="256.0" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">31%</text><rect x="830.0" y="165.1" width="25.8" height="60.6" fill="#14B8A6"/><text x="842.9" y="198.0" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">34%</text><rect x="830.0" y="149.4" width="25.8" height="15.7" fill="#F59E0B"/><text x="842.9" y="159.8" font-size="7" font-weight="700" fill="#1F2937" text-anchor="middle">9%</text><rect x="830.0" y="147.1" width="25.8" height="2.3" fill="#A78BFA"/><rect x="830.0" y="147.0" width="25.8" height="0.2" fill="#94A3B8"/><rect x="830.0" y="137.7" width="25.8" height="9.2" fill="#16A34A"/><text x="842.9" y="133.7" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">28,781</text><text x="842.9" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 842.9 329)">26.8</text><rect x="870.2" y="251.7" width="25.8" height="62.3" fill="#93C5FD"/><text x="883.1" y="285.5" font-size="7" font-weight="700" fill="#0F172A" text-anchor="middle">32%</text><rect x="870.2" y="202.7" width="25.8" height="49.0" fill="#2563EB"/><text x="883.1" y="229.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">25%</text><rect x="870.2" y="149.7" width="25.8" height="53.0" fill="#14B8A6"/><text x="883.1" y="178.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">28%</text><rect x="870.2" y="136.9" width="25.8" height="12.7" fill="#F59E0B"/><rect x="870.2" y="135.2" width="25.8" height="1.7" fill="#A78BFA"/><rect x="870.2" y="135.1" width="25.8" height="0.1" fill="#94A3B8"/><rect x="870.2" y="121.4" width="25.8" height="13.7" fill="#16A34A"/><text x="883.1" y="130.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">7%</text><text x="883.1" y="117.4" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">31,453</text><text x="883.1" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 883.1 329)">26.9</text><rect x="910.5" y="260.0" width="25.8" height="54.0" fill="#93C5FD"/><text x="923.4" y="289.6" font-size="7" font-weight="700" fill="#0F172A" text-anchor="middle">32%</text><rect x="910.5" y="216.4" width="25.8" height="43.6" fill="#2563EB"/><text x="923.4" y="240.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">26%</text><rect x="910.5" y="169.4" width="25.8" height="47.0" fill="#14B8A6"/><text x="923.4" y="195.5" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">28%</text><rect x="910.5" y="159.6" width="25.8" height="9.8" fill="#F59E0B"/><rect x="910.5" y="158.4" width="25.8" height="1.2" fill="#A78BFA"/><rect x="910.5" y="158.3" width="25.8" height="0.1" fill="#94A3B8"/><rect x="910.5" y="144.8" width="25.8" height="13.5" fill="#16A34A"/><text x="923.4" y="154.1" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">8%</text><text x="923.4" y="140.8" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">27,625</text><text x="923.4" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 923.4 329)">26.10</text><rect x="950.7" y="270.7" width="25.8" height="43.3" fill="#93C5FD"/><text x="963.6" y="295.0" font-size="7" font-weight="700" fill="#0F172A" text-anchor="middle">33%</text><rect x="950.7" y="239.7" width="25.8" height="31.0" fill="#2563EB"/><text x="963.6" y="257.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">24%</text><rect x="950.7" y="202.2" width="25.8" height="37.5" fill="#14B8A6"/><text x="963.6" y="223.6" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">29%</text><rect x="950.7" y="195.9" width="25.8" height="6.3" fill="#F59E0B"/><rect x="950.7" y="195.2" width="25.8" height="0.6" fill="#A78BFA"/><rect x="950.7" y="195.2" width="25.8" height="0.1" fill="#94A3B8"/><rect x="950.7" y="184.5" width="25.8" height="10.7" fill="#16A34A"/><text x="963.6" y="180.5" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">21,142</text><text x="963.6" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 963.6 329)">26.11</text><rect x="991.0" y="281.4" width="25.8" height="32.6" fill="#93C5FD"/><text x="1003.9" y="300.3" font-size="7" font-weight="700" fill="#0F172A" text-anchor="middle">36%</text><rect x="991.0" y="263.0" width="25.8" height="18.4" fill="#2563EB"/><text x="1003.9" y="274.8" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">20%</text><rect x="991.0" y="235.0" width="25.8" height="28.1" fill="#14B8A6"/><text x="1003.9" y="251.6" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">31%</text><rect x="991.0" y="232.2" width="25.8" height="2.8" fill="#F59E0B"/><rect x="991.0" y="232.1" width="25.8" height="0.1" fill="#A78BFA"/><rect x="991.0" y="232.0" width="25.8" height="0.0" fill="#94A3B8"/><rect x="991.0" y="224.2" width="25.8" height="7.8" fill="#16A34A"/><text x="1003.9" y="220.2" font-size="7.6" font-weight="800" fill="#334155" text-anchor="middle">14,659</text><text x="1003.9" y="329" font-size="8.5" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 1003.9 329)">26.12</text><line x1="722.1" y1="20" x2="722.1" y2="314" stroke="#1D4ED8" stroke-width="1.4" stroke-dasharray="3 3" opacity="0.55"/><line x1="58" y1="314.0" x2="1024" y2="314.0" stroke="#CBD5E1" stroke-width="1.2"/></svg></div>
+    </div>
+  </div>
+
+  <!-- ===== 2. DISCOUNT ===== -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="n">2</span>
+      <h2>할인율</h2>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>할인율 현황 <span class="yr now">26년 5월</span></h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>시즌</th><th>MSRP</th><th>Net</th><th>할인율</th><th>매출비중</th><th>가중평균</th></tr></thead>
+          <tbody>
+            <tr><td>Core</td><td>51</td><td>52</td><td><span class="pos">-1.4%</span></td><td>1.6%</td><td>-0.0%</td></tr>
+            <tr class="hl"><td>26SS</td><td>896</td><td>646</td><td>27.9%</td><td>27.2%</td><td>7.6%</td></tr>
+            <tr><td>25FW</td><td>1,256</td><td>545</td><td>56.6%</td><td>38.2%</td><td>21.6%</td></tr>
+            <tr><td>25SS</td><td>904</td><td>282</td><td>68.8%</td><td>27.5%</td><td>18.9%</td></tr>
+            <tr><td>Past</td><td>182</td><td>56</td><td>69.4%</td><td>5.5%</td><td>3.8%</td></tr>
+            <tr class="total"><td>합계</td><td>3,288</td><td>1,580</td><td class="neg">52.0%</td><td>100%</td><td>52.0%</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <h3>할인율 현황 <span class="yr ly">25년 5월 (LY)</span></h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>시즌</th><th>MSRP</th><th>Net</th><th>할인율</th><th>매출비중</th><th>가중평균</th></tr></thead>
+          <tbody>
+            <tr><td>Core</td><td>48</td><td>46</td><td>2.6%</td><td>2.2%</td><td>0.1%</td></tr>
+            <tr class="hl"><td>25SS</td><td>1,461</td><td>1,109</td><td>24.1%</td><td>67.3%</td><td>16.2%</td></tr>
+            <tr><td>24FW</td><td>498</td><td>254</td><td>48.9%</td><td>22.9%</td><td>11.2%</td></tr>
+            <tr><td>24SS</td><td>148</td><td>68</td><td>54.5%</td><td>6.8%</td><td>3.7%</td></tr>
+            <tr><td>Past</td><td>15</td><td>12</td><td>21.7%</td><td>0.7%</td><td>0.2%</td></tr>
+            <tr class="total"><td>합계</td><td>2,170</td><td>1,489</td><td>31.4%</td><td>100%</td><td>31.4%</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="keyline">
+      <span class="lab">핵심</span>
+      <span>재고구성 변화에 따라 할인율이 높은 과시즌 매출의 비중이 <span class="num">30.4%</span> → <span class="num">71.2%</span>로 <b>상승</b></span>
+    </div>
+  </div>
+
+  <!-- ===== 3. CHANNEL ===== -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="n">3</span>
+      <h2>채널별 매출비중</h2>
+    </div>
+    <div class="card">
+      <h3>STO 채널별 매출액 <span class="src" style="margin-left:auto;font-size:10.5px;font-weight:600;color:var(--ink3)">단위 $K · 막대 위=제휴몰</span></h3>
+      <div class="chart-legend"><span class="lg"><i style="background:#2563EB"></i>DTC (자사몰)</span><span class="lg"><i style="background:#F59E0B"></i>Marketplace (제휴몰)</span></div>
+      <div class="chart-svg"><svg viewBox="0 0 1040 300" width="100%" preserveAspectRatio="xMidYMid meet" font-family="Pretendard, sans-serif"><line x1="52" y1="260.0" x2="1024" y2="260.0" stroke="#E5E7EB" stroke-width="1"/><text x="45" y="263.5" font-size="9.5" fill="#94A3B8" text-anchor="end">0</text><line x1="52" y1="204.9" x2="1024" y2="204.9" stroke="#E5E7EB" stroke-width="1"/><text x="45" y="208.4" font-size="9.5" fill="#94A3B8" text-anchor="end">2,000</text><line x1="52" y1="149.9" x2="1024" y2="149.9" stroke="#E5E7EB" stroke-width="1"/><text x="45" y="153.4" font-size="9.5" fill="#94A3B8" text-anchor="end">4,000</text><line x1="52" y1="94.8" x2="1024" y2="94.8" stroke="#E5E7EB" stroke-width="1"/><text x="45" y="98.3" font-size="9.5" fill="#94A3B8" text-anchor="end">6,000</text><line x1="52" y1="39.8" x2="1024" y2="39.8" stroke="#E5E7EB" stroke-width="1"/><text x="45" y="43.3" font-size="9.5" fill="#94A3B8" text-anchor="end">8,000</text><rect x="64.0" y="215.1" width="33.2" height="44.9" fill="#2563EB"/><rect x="64.0" y="208.7" width="33.2" height="6.4" fill="#F59E0B"/><text x="80.6" y="240.6" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">1,630</text><text x="80.6" y="204.7" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">234</text><text x="80.6" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 80.6 275)">25.1</text><rect x="121.2" y="216.6" width="33.2" height="43.4" fill="#2563EB"/><rect x="121.2" y="211.8" width="33.2" height="4.8" fill="#F59E0B"/><text x="137.8" y="241.3" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">1,577</text><text x="137.8" y="207.8" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">174</text><text x="137.8" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 137.8 275)">25.2</text><rect x="178.4" y="203.8" width="33.2" height="56.2" fill="#2563EB"/><rect x="178.4" y="196.3" width="33.2" height="7.5" fill="#F59E0B"/><text x="194.9" y="234.9" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">2,042</text><text x="194.9" y="192.3" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">272</text><text x="194.9" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 194.9 275)">25.3</text><rect x="235.5" y="210.9" width="33.2" height="49.1" fill="#2563EB"/><rect x="235.5" y="205.6" width="33.2" height="5.2" fill="#F59E0B"/><text x="252.1" y="238.4" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">1,785</text><text x="252.1" y="201.6" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">190</text><text x="252.1" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 252.1 275)">25.4</text><rect x="292.7" y="205.2" width="33.2" height="54.8" fill="#2563EB"/><rect x="292.7" y="200.3" width="33.2" height="5.0" fill="#F59E0B"/><text x="309.3" y="235.6" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">1,989</text><text x="309.3" y="196.3" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">181</text><text x="309.3" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 309.3 275)">25.5</text><rect x="349.9" y="195.6" width="33.2" height="64.4" fill="#2563EB"/><rect x="349.9" y="190.5" width="33.2" height="5.1" fill="#F59E0B"/><text x="366.5" y="230.8" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">2,340</text><text x="366.5" y="186.5" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">186</text><text x="366.5" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 366.5 275)">25.6</text><rect x="407.1" y="186.4" width="33.2" height="73.6" fill="#2563EB"/><rect x="407.1" y="181.2" width="33.2" height="5.2" fill="#F59E0B"/><text x="423.6" y="226.2" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">2,674</text><text x="423.6" y="177.2" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">187</text><text x="423.6" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 423.6 275)">25.7</text><rect x="464.2" y="184.4" width="33.2" height="75.6" fill="#2563EB"/><rect x="464.2" y="179.8" width="33.2" height="4.6" fill="#F59E0B"/><text x="480.8" y="225.2" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">2,748</text><text x="480.8" y="175.8" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">167</text><text x="480.8" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 480.8 275)">25.8</text><rect x="521.4" y="190.4" width="33.2" height="69.6" fill="#2563EB"/><rect x="521.4" y="183.8" width="33.2" height="6.6" fill="#F59E0B"/><text x="538.0" y="228.2" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">2,528</text><text x="538.0" y="179.8" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">240</text><text x="538.0" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 538.0 275)">25.9</text><rect x="578.6" y="172.8" width="33.2" height="87.2" fill="#2563EB"/><rect x="578.6" y="168.5" width="33.2" height="4.3" fill="#F59E0B"/><text x="595.2" y="219.4" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">3,167</text><text x="595.2" y="164.5" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">156</text><text x="595.2" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 595.2 275)">25.10</text><rect x="635.8" y="60.0" width="33.2" height="200.0" fill="#2563EB"/><rect x="635.8" y="55.7" width="33.2" height="4.3" fill="#F59E0B"/><text x="652.4" y="163.0" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">7,263</text><text x="652.4" y="51.7" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">156</text><text x="652.4" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 652.4 275)">25.11</text><rect x="692.9" y="52.2" width="33.2" height="207.8" fill="#2563EB"/><rect x="692.9" y="42.5" width="33.2" height="9.6" fill="#F59E0B"/><text x="709.5" y="159.1" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">7,550</text><text x="709.5" y="38.5" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">350</text><text x="709.5" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 709.5 275)">25.12</text><rect x="750.1" y="196.0" width="33.2" height="64.0" fill="#2563EB"/><rect x="750.1" y="190.8" width="33.2" height="5.2" fill="#F59E0B"/><text x="766.7" y="231.0" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">2,326</text><text x="766.7" y="186.8" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">189</text><text x="766.7" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 766.7 275)">26.1</text><rect x="807.3" y="218.9" width="33.2" height="41.1" fill="#2563EB"/><rect x="807.3" y="216.5" width="33.2" height="2.4" fill="#F59E0B"/><text x="823.9" y="242.4" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">1,493</text><text x="823.9" y="212.5" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">86</text><text x="823.9" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 823.9 275)">26.2</text><rect x="864.5" y="216.4" width="33.2" height="43.6" fill="#2563EB"/><rect x="864.5" y="212.5" width="33.2" height="3.9" fill="#F59E0B"/><text x="881.1" y="241.2" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">1,585</text><text x="881.1" y="208.5" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">142</text><text x="881.1" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 881.1 275)">26.3</text><rect x="921.7" y="214.6" width="33.2" height="45.4" fill="#2563EB"/><rect x="921.7" y="206.8" width="33.2" height="7.8" fill="#F59E0B"/><text x="938.2" y="240.3" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">1,648</text><text x="938.2" y="202.8" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">285</text><text x="938.2" y="275" font-size="9" font-weight="500" fill="#94A3B8" text-anchor="middle" transform="rotate(-42 938.2 275)">26.4</text><rect x="978.8" y="182.2" width="33.2" height="77.8" fill="#2563EB"/><rect x="978.8" y="169.5" width="33.2" height="12.7" fill="#F59E0B"/><text x="995.4" y="224.1" font-size="7.8" font-weight="800" fill="#FFFFFF" text-anchor="middle">2,826</text><text x="995.4" y="165.5" font-size="7.8" font-weight="800" fill="#B45309" text-anchor="middle">463</text><text x="995.4" y="275" font-size="9" font-weight="800" fill="#1D4ED8" text-anchor="middle" transform="rotate(-42 995.4 275)">26.5</text><line x1="52" y1="260.0" x2="1024" y2="260.0" stroke="#CBD5E1" stroke-width="1.2"/></svg></div>
+    </div>
+    <div class="keyline">
+      <span class="lab">핵심</span>
+      <span>
+        <div>제휴몰은 소비자가 <b>브랜드명을 직접 검색해 유입</b>되어야 비로소 매출이 발생하는 구조로, 브랜드 인지도가 아직 무르익지 않은 현 시점에서 본격적인 과시즌 재고 소진 채널로 가동하기엔 한계가 있음</div>
+        <div style="margin-top:5px;padding-left:13px;color:var(--ink2)">└ 당분간 <b>자사몰에서 당시즌 정상가 판매와 함께 일부 과시즌 물량 소진을 분담</b>하는 것이 현실적임</div>
+        <div style="margin-top:3px;padding-left:13px;color:var(--ink2)">└ 브랜드 인지도 제고와 함께 <b>당시즌=자사몰 · 과시즌=제휴몰 판매 구조 정착</b>이 장기 KPI</div>
+      </span>
+    </div>
+  </div>
+
+  <!-- ===== 4. SEM ===== -->
+  <div class="section">
+    <div class="sec-head">
+      <span class="n">4</span>
+      <h2>SEM 광고비</h2>
+    </div>
+    <div class="chips">
+      <div class="chip"><div class="l">SEM 광고비</div><div class="v">$340K</div><div class="d up"><span class="ar">▲</span>+25% · LY $272K</div></div>
+      <div class="chip"><div class="l">MSRP Sales</div><div class="v">$3,288K</div><div class="d up"><span class="ar">▲</span>+51.6% · LY $2,170K</div></div>
+      <div class="chip"><div class="l">SEM ÷ Net Sales</div><div class="v">21.5%</div><div class="d down"><span class="ar">▲</span>+3.3%p · LY 18.3%</div></div>
+      <div class="chip"><div class="l">SEM ÷ MSRP Sales</div><div class="v">10.3%</div><div class="d up"><span class="ar">▼</span>-2.2%p · LY 12.5%</div></div>
+    </div>
+    <div class="grid-37" style="margin-top:14px">
+      <div class="card">
+        <h3>SEM 광고비 효율</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>지표</th><th>26년 5월</th><th>25년 5월</th><th>vs LY</th></tr></thead>
+          <tbody>
+            <tr><td>MSRP Sales</td><td>3,288</td><td>2,170</td><td class="em">151.6%</td></tr>
+            <tr><td>Net Sales</td><td>1,580</td><td>1,489</td><td class="em">106.1%</td></tr>
+            <tr><td>SEM 광고비</td><td>340</td><td>272</td><td class="em">125.0%</td></tr>
+            <tr class="hl"><td>Net Sales 대비</td><td>21.5%</td><td>18.3%</td><td><span class="neg">+3.3%p</span></td></tr>
+            <tr class="hl"><td>MSRP Sales 대비</td><td>10.3%</td><td>12.5%</td><td><span class="pos">-2.2%p</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="keyline" style="margin-top:0">
+        <span class="lab">핵심</span>
+        <span>Net Sales 대비 SEM 광고비 비율은 전년 대비 <span class="num">3.3%p 상승</span>했으나, 이는 <b>재고 소진 가속화를 위한 전략적 집행</b>에 따른 결과임</span>
+      </div>
+    </div>
+  </div>
+
+</div>
 </body>
 </html>
